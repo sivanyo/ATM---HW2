@@ -55,12 +55,14 @@ read_another_char:
 finish_string_input:
     # push $CHAR_FROM_INPUT
     # prepare for split
-    push $0
+    # push $0
     # get the current value from the stack example:
     # movq (%r12), %r10
     movq %r12, %rdi # saving the address of char * expr in rdi
     movq $0, %rsi # saving start in rsi
+    #movq $1, %rsi
     movq %r13, %rdx # saving the length of the string in rdx
+    #movq $2, %rdx
 #    call split
     call convert_leaf
 #    ret
@@ -90,6 +92,7 @@ convert_leaf:
     # r10 saves the number of characters pushed onto the stack
     xor %r10, %r10
     xor %r8, %r8
+    imul $-1, %rsi
 load_expr_loop:
     # now r8 stores the value from (rdi+rsi*1) == expr[j]
     movq (%rdi, %rsi, 8), %r8
@@ -103,44 +106,9 @@ load_expr_loop:
     push %r8 # pushes null terminator to the end of the stack
     inc %r10
     movq %rbp, %rdi
-    add $8, %rdi
-    call *%r14
-    # now rax stores return value, which should be a long long number we wanted to convert from string
-    # increasing stack size to delete old values pushed to the stack
-    leaq (%rsp, %r10, 8), %rsp
-    leave
-    ret
-    # need to push onto the stack the number we want to convert and (probably) pass a register storing the address to the conversion function
-    # need to push null terminator to the end of the stack so that the function can stop converting
+    # rdi now points to the adress on the stack, where the char* expr starts --> (%rdi) == expr[0]
+    sub $8, %rdi
 
-# long long convert_non_para(char* expr, int start, int i);
-convert_non_para:
-    # rdi stores the address of the string
-    # rsi stores the start index
-    # rdx stores the end index (i)
-    # prologue
-    push %rbp
-    mov %rsp, %rbp
-    # rbx stores int end
-    movq %rdx, %rbx # rbx <- i
-    dec %rbx # rbx <- i-1
-    movq %rbx, %r9
-    dec %r9 # r9 <- i-2
-    # r10 saves the number of characters pushed onto the stack
-    xor %r10, %r10
-load_expr_conv_loop:
-    # now r8 stores the value from (rdi+rsi*1) == expr[j]
-    movq (%rdi, %rsi, 1), %r8
-    push %r8
-    inc %r10
-    inc %rsi
-    cmp %rsi, %rbx
-    jne load_expr_conv_loop
-    movq $0, %r8
-    push %r8 # pushes null terminator to the end of the stack
-    inc %r10
-    movq %rbp, %rdi
-    add $8, %rdi
     call *%r14
     # now rax stores return value, which should be a long long number we wanted to convert from string
     # increasing stack size to delete old values pushed to the stack
