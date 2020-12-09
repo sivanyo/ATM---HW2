@@ -180,7 +180,7 @@ check_is_closing_para:
     pushq %r15
     pushq %rcx
     pushq %rdi
-    call calculate_result # TODO: write this function
+    call calculate_result
     # now rax stores the result of the entire calculation of this branch
     popq %rdi
     popq %rcx
@@ -395,6 +395,5 @@ MULTI: .byte 42
 DIVIDE: .byte 47
 OPEN_PAR: .byte 40
 CLOSE_PAR: .byte 41
-# todo: change this to actual null terminator
 NULL_TERM: .byte 10
 CHAR_FROM_INPUT: .byte 0
