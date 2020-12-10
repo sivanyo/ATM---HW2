@@ -299,8 +299,9 @@ convert_left:
     pushq %r9
     movq %rdi, %r10
     movq %rsi, %rdi
-    movb (%rdi), %r8b
-    movb 1(%rdi), %r9b
+    movq $str1, %rdi
+    #movb (%rdi), %r8b
+    #movb 1(%rdi), %r9b
     # invoke string_covert which his address is stored at r10, with parameter rsi, which is the address where left string starts
     call *%r10
     popq %r9
@@ -410,3 +411,5 @@ OPEN_PAR: .byte 40
 CLOSE_PAR: .byte 41
 NULL_TERM: .byte 10
 CHAR_FROM_INPUT: .byte 0
+str1: .string "1"
+str2: .string "2"
