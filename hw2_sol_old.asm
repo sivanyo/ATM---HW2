@@ -1,9 +1,9 @@
 .section .text
 .global	calc_expr
+calc_expr:
 #.text
 #.global main
 #main:
-calc_expr:
     # calc_expr prologue
     # rdi stores address of string_convert
     # rsi stores address of result_as_string
@@ -160,7 +160,8 @@ operator_is_defined:
     movq $1, %r15
     jmp begin_read_char
 check_is_closing_para:
-    cmp $41, (%r9)
+    #cmp $41, (%r9)
+    cmp $41, %rbx
     jne check_is_operator
     # this is a closing bracket, meaning we reached the ending of an arithmetic expression
     # saving the address of string_convert func
