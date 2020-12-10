@@ -77,6 +77,7 @@ input_loop_func:
     movq $0, %rcx
 
 begin_read_char:
+    pushq %rdi
     movq $0, %rax # syscall type is read
     movq $0, %rdi # input is stdin
     movq $CHAR_FROM_INPUT, %rsi # output will be written to $CHAR_FROM_INPUT
@@ -86,6 +87,7 @@ begin_read_char:
     syscall
     popq %rcx
     popq %r11
+    popq %rdi
 
     # %rbx stores the character we recevied from STDIN
     movb (CHAR_FROM_INPUT), %bl
