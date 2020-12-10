@@ -186,7 +186,7 @@ check_is_closing_para:
     movq %r15, %r8
     # operator character in r9
     xor %r10, %r10
-    movb (%r9), %r10
+    movb (%r9), %r10b
     movq %r10, %r9
     call calculate_result
     # now rax stores the result of the entire calculation of this branch
