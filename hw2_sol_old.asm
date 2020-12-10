@@ -1,8 +1,9 @@
-#.section .text
-#.global	calc_expr
-.text
-.global main
-main:
+.section .text
+.global	calc_expr
+#.text
+#.global main
+#main:
+calc_expr:
     # calc_expr prologue
     # rdi stores address of string_convert
     # rsi stores address of result_as_string
@@ -197,11 +198,14 @@ check_is_operator:
     # need to check if left side is set, if not, then the character is part of left side and not operator (even if it is '-')
     cmp $0, %rcx
     # left side is not set, so we add to it now
-    jmp set_left_no_operator
+    je set_left_no_operator
     # need to check if the current character is a airthmetic operator (+,-,/,*)
     # saving the address of string_convert func
     # chcking if operator is set
-    cmp $35, (%r9)
+    xor %rax, %rax
+    movb (%r9), %al
+    cmp $35, %rax
+    #cmp $35, (%r9)
     jne add_to_right_string
     # the operator not set
     # checking if the current character is an operator, if not, we will add the characters to the left side (because we have no operator, and the current is not an operator)
@@ -353,22 +357,22 @@ determine_operator:
     # prologue
     pushq %rbp
     movq %rsp, %rbp
-    cmp $PLUS, %rdi
+    cmp $43, %rdi
     jne check_minus
     movq $0, %rax
     jmp det_op_end
 check_minus:
-    cmp $MINUS, %rdi
+    cmp $45, %rdi
     jne check_multi
     movq $1, %rax
     jmp det_op_end
 check_multi:
-    cmp $MULTI, %rdi
+    cmp $42, %rdi
     jne check_divide
     movq $2, %rax
     jmp det_op_end
 check_divide:
-    cmp $DIVIDE, %rdi
+    cmp $47, %rdi
     jne not_operator
     movq $3, %rax
     jmp det_op_end
