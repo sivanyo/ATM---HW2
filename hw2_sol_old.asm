@@ -175,32 +175,19 @@ check_is_closing_para:
     pushq %rcx
     # saving the address of string_convert func
     pushq %rdi
-
-    ####
-     # the frame stack looks like this
-        # left side (20 bytes) <- pointed by r8
-        # operand (1 byte) <- pointed by r9
-        # right side (20 bytes) <- pointed by r10
-        # left not empty (1 byte) <- pointed by r11
-        # left_pos <- r12
-        # right_pos <- r13
-        # is_left_number <- r14
-        # is_right_number <- r15
-        # is_left_empty <- rcx
-
-    ###
-
     # pointer to string_convert function in rdi
     # address of left side in rsi
-    movq (%r8), %rsi
+    movq %r8, %rsi
     # is left side a number in rdx
     movq %r14, %rdx
     # address of right side in rcx
-    movq (%r10), %rcx
+    movq %r10, %rcx
     # is right side a number in r8
     movq %r15, %r8
     # operator character in r9
-    movq (%r9), %r9
+    xor %r10, %r10
+    movb (%r9), %r10
+    movq %r10, %r9
     call calculate_result
     # now rax stores the result of the entire calculation of this branch
     popq %rdi
@@ -312,6 +299,8 @@ convert_left:
     pushq %r9
     movq %rdi, %r10
     movq %rsi, %rdi
+    movb (%rdi), %r8b
+    movb 1(%rdi), %r9b
     # invoke string_covert which his address is stored at r10, with parameter rsi, which is the address where left string starts
     call *%r10
     popq %r9
