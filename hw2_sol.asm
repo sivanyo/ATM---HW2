@@ -23,7 +23,7 @@ calc_expr:
     call *%r15 # invoke result_as_string with rdi as input number
 
     movq %rax, %rdx # rax now stores the number of bytes to print (received from result_as_string)
-    mov $what_to_print, %rsi # address of the global variable containing the result string
+    movq $what_to_print, %rsi # address of the global variable containing the result string
     movb (%rsi), %r8b
     movb 1(%rsi), %r9b
     movb 2(%rsi), %r10b
