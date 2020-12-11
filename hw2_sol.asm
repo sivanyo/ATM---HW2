@@ -9,6 +9,7 @@ calc_expr:
     # rsi stores address of result_as_string
     pushq %rbp
     movq %rsp, %rbp
+    pushq %rbx
 	#push %rdi
 	#push %rsi # rsp points to the value of rsi now
 
@@ -42,6 +43,7 @@ calc_expr:
     #movq $msg, %rsi
     #movq (msg_len), %rdx
     syscall
+    movq -8(%rbp), %rbx  # epilogue
     leave
     ret
 
