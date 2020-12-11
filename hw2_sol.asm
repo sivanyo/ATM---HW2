@@ -1,41 +1,91 @@
 .section .text
 .global	calc_expr
-calc_expr:
+#calc_expr:
 #.text
 #.global main
 #main:
     # calc_expr prologue
     # rdi stores address of string_convert
     # rsi stores address of result_as_string
-    pushq %rbp
-    movq %rsp, %rbp
-	#push %rdi
-	#push %rsi # rsp points to the value of rsi now
+    #pushq %rbp
+    #movq %rsp, %rbp
+	##push %rdi
+	##push %rsi # rsp points to the value of rsi now
+    #
+	##call input_loop_func
+    #
+    ##popq %rsi
+    ##popq %rdi
+    ## now rax stores the numeric result, need to conver to string
+    #movq %rax, %rdi
+    #movq %rsi, %r15
+    #movq $5, %rdi
+    #call *%r15 # invoke result_as_string with rdi as input number
 
-	#call input_loop_func
-
-    #popq %rsi
-    #popq %rdi
-    # now rax stores the numeric result, need to conver to string
-    movq %rax, %rdi
-    movq %rsi, %r15
-    movq $5, %rdi
-    call *%r15 # invoke result_as_string with rdi as input number
-
-    movq %rax, %rdx # rax now stores the number of bytes to print (received from result_as_string)
-    movq $what_to_print, %rsi # address of the global variable containing the result string
-    movb (%rsi), %r8b
-    movb 1(%rsi), %r9b
-    movb 2(%rsi), %r10b
-    movq $1, %rax # using write syscall
-    movq $1, %rdi # using stdout as output device
+    #movq %rax, %rdx # rax now stores the number of bytes to print (received from result_as_string)
+    #movq $what_to_print, %rsi # address of the global variable containing the result string
+    #movb (%rsi), %r8b
+    #movb 1(%rsi), %r9b
+    #movb 2(%rsi), %r10b
+    #movq $1, %rax # using write syscall
+    #movq $1, %rdi # using stdout as output device
     #movq $msg, %rsi
     #movq (msg_len), %rdx
 
-    syscall
-    leave
-    ret
+    #syscall
+    #leave
+    #ret
     #?
+    calc_expr:  #params passed arguments:
+                #1.%rdi=&func-string_convert(),
+                #2.%rsi=&func-result_as_string()
+
+    #prolog
+        pushq %rbp
+        movq %rsp, %rbp
+        dec %rsp        #allocate for read
+    #end of prolog
+        movq %rsp, %r8  #r8 saves rsp temporerly
+        #pushq %rdi
+        #pushq %rsi
+        #movq %r8, %rsi  #address to write to (previous rsp before push)
+        ##setting params for read syscall
+        #movq $1, %rdx   #num of chars to read
+        #movq $0, %rax   #syscall num for reading
+        #movq $0, %rdi   #input is from stdin
+        #syscall
+        #
+        #popq %rsi
+        #popq %rdi
+
+        #no need to set params for calc_recursion call
+        #%rdi is already the address to string_convert()
+
+    .bofore_calc_rec:
+        #pushq %rsi
+        #call calc_recursion
+        #popq %rsi
+    .after_calc_rec:
+        movq %rax, %rdi #moving the return value
+        movq $5, %rdi
+        #from calc_recursion to param for next call
+        call * %rsi #result_as_sting()
+
+        #setting params for write syscall
+        movq %rax, %rdx #num of chars to write
+        #(returned by result_as_sting())
+        mov $what_to_print, %rsi  #address to read and write it's content
+    .after_what_to_print:
+        # rdx = rax (num of chars)
+        movq $1, %rax   #syscall num for writing
+        movq $1, %rdi   #output to stdout (screen)
+        syscall
+
+    .epilog_calc_expr:
+        inc %rsp        #free space
+        leave           #this is equivalent to [movq %rbp, %rsp]
+                        #             and then [popq %rbp]
+        ret             #no stack space allocated, so none freed
 
 # maximum size of a numeric size is 20 bytes (including the minus character)
 # size of operand for calculation is 1 byte
