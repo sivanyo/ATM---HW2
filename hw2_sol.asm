@@ -7,44 +7,86 @@ calc_expr:
     # calc_expr prologue
     # rdi stores address of string_convert
     # rsi stores address of result_as_string
-    pushq %rbp
-    movq %rsp, %rbp
-	#push %rdi
-	#push %rsi # rsp points to the value of rsi now
-
-	#call input_loop_func
-
-    #popq %rsi
-    #popq %rdi
-    # now rax stores the numeric result, need to conver to string
+    #pushq %rbp
+    #movq %rsp, %rbp
+	##push %rdi
+	##push %rsi # rsp points to the value of rsi now
+    #
+	##call input_loop_func
+    #
+    ##popq %rsi
+    ##popq %rdi
+    ## now rax stores the numeric result, need to conver to string
+    ##movq %rax, %rdi
+    #movq %rsi, %r15
+    #movq %rdi, %r14
+    #subq $4, %rsp
+    #movb $49, (%rsp)
+    #movb $50, 1(%rsp)
+    #movb $51, 2(%rsp)
+    #movb $0, 3(%rsp)
+    #movq %rsp, %rdi
+    #call *%r14 # call string_convert with %rsp as parameter
+    #
     #movq %rax, %rdi
-    movq %rsi, %r15
-    movq %rdi, %r14
-    subq $4, %rsp
-    movb $49, (%rsp)
-    movb $50, 1(%rsp)
-    movb $51, 2(%rsp)
-    movb $0, 3(%rsp)
-    movq %rsp, %rdi
-    call *%r14 # call string_convert with %rsp as parameter
+    #call *%r15 # invoke result_as_string with rdi as input number
+    #
+    #movq %rax, %rdx # rax now stores the number of bytes to print (received from result_as_string)
+    #movq $what_to_print, %rsi # address of the global variable containing the result string
+    #movb (%rsi), %r8b
+    #movb 1(%rsi), %r9b
+    #movb 2(%rsi), %r10b
+    #movq $1, %rax # using write syscall
+    #movq $1, %rdi # using stdout as output device
+    ##movq $msg, %rsi
+    ##movq (msg_len), %rdx
+    #syscall
+    #leave
+    #ret
 
-    movq %rax, %rdi
-    call *%r15 # invoke result_as_string with rdi as input number
+    pushq %rbp # prolog
+        movq %rsp, %rbp
+        pushq %rbx
 
-    movq %rax, %rdx # rax now stores the number of bytes to print (received from result_as_string)
-    movq $what_to_print, %rsi # address of the global variable containing the result string
-    movb (%rsi), %r8b
-    movb 1(%rsi), %r9b
-    movb 2(%rsi), %r10b
-    movq $1, %rax # using write syscall
-    movq $1, %rdi # using stdout as output device
-    #movq $msg, %rsi
-    #movq (msg_len), %rdx
+        movq %rdi, string_convert_func # need to be backup to somthing
+        #movq %rdi, %r14 # need to be backup to somthing
+        #movq %rsi, result_as_string_func
+        movq %rsi, %r15
+        # try to print 32
+        subq $3, %rsp
+        movb $51, (%rsp)
+        movb $50, 1(%rsp)
+        movb $0, 2(%rsp)
+        #movb $50, %r13b # 50 == '2'
+        #push %r13
+        #
+        movq %rsp, %rdi # address to start reading from
+        #
+        #movb $51, %r13b # 51 == '3'
+        #pushq %r13
+        #
+        #movb $52, %r13b # 52 == '4'
+        #pushq %r13
+        #
+        #movq $0, %r13 # end of number
+        #pushq %r13
 
-    syscall
-    leave
-    ret
-    #?
+    bpoint1:
+        #call *%r14
+        call *string_convert_func
+    bpoint2:
+        movq %rax, %rdi
+        call *%r15
+    bpoint3:
+        movq %rax, %rdx # len of str
+        movq $what_to_print, %rsi
+        movq $1, %rax
+        movq $1, %rdi
+        syscall
+
+        movq -8(%rbp), %rbx  # epilogue
+        leave
+        ret
 
 # maximum size of a numeric size is 20 bytes (including the minus character)
 # size of operand for calculation is 1 byte
@@ -438,4 +480,5 @@ NULL_TERM: .byte 10
 CHAR_FROM_INPUT: .byte 0
 msg: .ascii "test"
 msg_len: .quad msg_len - msg
-
+string_convert_func: .quad
+result_as_string_func: .quad
