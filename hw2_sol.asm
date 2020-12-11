@@ -20,9 +20,11 @@ calc_expr:
     #movq %rax, %rdi
     movq %rsi, %r15
     movq %rdi, %r14
-    subq $2, %rsp
-    movb $55, (%rsp)
-    movb $0, 1(%rsp)
+    subq $4, %rsp
+    movb $49, (%rsp)
+    movb $50, 1(%rsp)
+    movb $51, 2(%rsp)
+    movb $0, 3(%rsp)
     movq %rsp, %rdi
     call *%r14 # call string_convert with %rsp as parameter
 
