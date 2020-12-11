@@ -92,6 +92,10 @@ begin_read_char:
     # %rbx stores the character we recevied from STDIN
     movb (CHAR_FROM_INPUT), %bl
 
+    # need to check if this is the line feed (newline marker), if it is, that means the input has reached it's end
+    cmp $10, %rbx
+    je restore_result_and_return
+
     cmp $40, %rbx
     jne check_is_closing_para
     # input is (
@@ -247,6 +251,10 @@ add_to_right_string:
     # setting null terminator, in case this is the end of the string
     movb $0, (%r13)
     jmp begin_read_char
+
+restore_result_and_end:
+    # getting value of calculation from (%r8) and placing in rax
+    mov (%r8), %rax
 
 rec_loop_end:
     leave
