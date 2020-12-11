@@ -364,6 +364,9 @@ check_div:
     cmp $3, %r15
     jne no_op_provided
     xor %rdx, %rdx
+    # moving value of left side to rax
+    movq %rsi, %rax
+    # doing rdx:rax / rcx and saving result in rax
     idiv %rcx
     jmp end
 store_result:
