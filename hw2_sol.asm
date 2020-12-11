@@ -19,8 +19,7 @@ calc_expr:
     # now rax stores the numeric result, need to conver to string
     movq %rax, %rdi
 
-    #movq %rax, %rdi
-    call *%r15 # invoke result_as_string with rdi as input number
+    call *%rsi # invoke result_as_string with rdi as input number
 
     movq %rax, %rdx # rax now stores the number of bytes to print (received from result_as_string)
     movq $what_to_print, %rsi # address of the global variable containing the result string
