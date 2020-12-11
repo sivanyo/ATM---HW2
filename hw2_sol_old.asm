@@ -9,13 +9,13 @@ calc_expr:
     # rsi stores address of result_as_string
     pushq %rbp
     movq %rsp, %rbp
-	push %rdi
-	push %rsi # rsp points to the value of rsi now
+	#push %rdi
+	#push %rsi # rsp points to the value of rsi now
 
-	call input_loop_func
+	#call input_loop_func
 
-    popq %rsi
-    popq %rdi
+    #popq %rsi
+    #popq %rdi
     # now rax stores the numeric result, need to conver to string
     movq %rax, %rdi
     movq $5, %rdi
