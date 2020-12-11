@@ -20,12 +20,13 @@ calc_expr:
     movq %rax, %rdi
     call *%rsi # invoke result_as_string with rdi as input number
 
-    #movq %rax, %rdx # rax now stores the number of bytes to print (received from result_as_string)
-    #mov $what_to_print, %rsi # address of the global variable containing the result string
+    movq %rax, %rdx # rax now stores the number of bytes to print (received from result_as_string)
+    mov $what_to_print, %rsi # address of the global variable containing the result string
+    movb (%rsi), %r8b
     movq $1, %rax # using write syscall
     movq $1, %rdi # using stdout as output device
-    movq $msg, %rsi
-    movq (msg_len), %rdx
+    #movq $msg, %rsi
+    #movq (msg_len), %rdx
 
     syscall
     leave
