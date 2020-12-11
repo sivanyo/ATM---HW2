@@ -364,13 +364,15 @@ check_mul:
     imul %rsi, %rcx
     jmp store_result
 check_div:
-    movq %rsi, %rax
     cmp $3, %r15
-    jne end
+    jne no_op_provided
     xor %rdx, %rdx
     idiv %rcx
 store_result:
     movq %rcx, %rax
+    jmp end
+no_op_provided:
+    movq %rsi, %rax
 end:
     # calculate_result epilogue
     leave
