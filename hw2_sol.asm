@@ -19,7 +19,14 @@ calc_expr:
     # now rax stores the numeric result, need to conver to string
     #movq %rax, %rdi
     movq %rsi, %r15
-    movq $5, %rdi
+    movq %rdi, %r14
+    subq 2, %rsp
+    movb $49, (%rsp)
+    movb $0, 1(%rsp)
+    movq %rsp, %rdi
+    call *r14 # call string_convert with %rsp as parameter
+
+    movq %rax, %rdi
     call *%r15 # invoke result_as_string with rdi as input number
 
     movq %rax, %rdx # rax now stores the number of bytes to print (received from result_as_string)
