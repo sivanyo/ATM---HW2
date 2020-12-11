@@ -20,10 +20,12 @@ calc_expr:
     movq %rax, %rdi
     call *%rsi # invoke result_as_string with rdi as input number
 
-    movq %rax, %rdx # rax now stores the number of bytes to print (received from result_as_string)
-    mov $what_to_print, %rsi # address of the global variable containing the result string
+    #movq %rax, %rdx # rax now stores the number of bytes to print (received from result_as_string)
+    #mov $what_to_print, %rsi # address of the global variable containing the result string
     movq $1, %rax # using write syscall
     movq $1, %rdi # using stdout as output device
+    movq $msg, %rsi
+    movq (msg_len), %rdx
 
     syscall
     leave
@@ -420,3 +422,5 @@ OPEN_PAR: .byte 40
 CLOSE_PAR: .byte 41
 NULL_TERM: .byte 10
 CHAR_FROM_INPUT: .byte 0
+msg: .ascii "test"
+msg_len: .quad msg_len - msg
