@@ -27,46 +27,6 @@ calc_expr:
 
     movq %r13, %r12
     addq %rsp, %r12
-    movb $52, (%r12) # 52 == '4'
-    inc %r13
-
-    movq %r13, %r12
-    addq %rsp, %r12
-    movb $53, (%r12) # 53 == '5'
-    inc %r13
-
-    movq %r13, %r12
-    addq %rsp, %r12
-    movb $54, (%r12) # 54 == '6'
-    inc %r13
-
-    movq %r13, %r12
-    addq %rsp, %r12
-    movb $55, (%r12) # 55 == '7'
-    inc %r13
-
-    movq %r13, %r12
-    addq %rsp, %r12
-    movb $56, (%r12) # 56 == '8'
-    inc %r13
-
-    movq %r13, %r12
-    addq %rsp, %r12
-    movb $57, (%r12) # 57 == '9'
-    inc %r13
-
-    movq %r13, %r12
-    addq %rsp, %r12
-    movb $49, (%r12) # 49 == '1'
-    inc %r13
-
-    movq %r13, %r12
-    addq %rsp, %r12
-    movb $48, (%r12) # 48 == '0'
-    inc %r13
-
-    movq %r13, %r12
-    addq %rsp, %r12
     movb $0, (%r12) # end of string-number
 
     movq %rsp, %rdi # address to start reading from
