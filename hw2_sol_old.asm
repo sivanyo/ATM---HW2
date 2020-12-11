@@ -1,381 +1,122 @@
-.section .text
-.global	calc_expr
-calc_expr:
-#.text
-#.global main
-#main:
-    # calc_expr prologue
-    # rdi stores address of string_convert
-    # rsi stores address of result_as_string
-    pushq %rbp
-    movq %rsp, %rbp
-	#push %rdi
-	#push %rsi # rsp points to the value of rsi now
+#.section .text
+#.global	calc_expr
+.text
+.global main
+main:
+	# rdi stores the address in memory to string_convert (will be saved in r14)
+	# rsi stores the address in memory to result_as_string (will be saved in r15)
+	movq %rdi, %r14
+	movq %rsi, %r15
+	# STEPS:
+	# take string as input from STDIN and use the number of characters taken as input, to figure out length (func)
+	# call split on the input string, using the provided len, and specifying start as 0 (func)
+	# extra functions:
+	# convert_leaf - will receive start, end and expr, will create a new char array and send it to string_convert func, and eventually return the numeric result
+	# convert_no_para - will recieve i, start and expr, will create a new char array and send it to string_convert func, and eventually return the numeric result
+	# determine_operator - will receive an ASCII character as input and will return an int to determine which operator to use (func)
+	# is_arithmetic_operator - will receive an ASCII character as input and will return 1 if it is, and 0 otherwise (func)
 
-	#call input_loop_func
+	# implementation order:
+    # 1. determine_operator (V)
+    # 2. convert_leaf (V?)
+    # 3. convert_non_para (V?)
+    # 4. read_from_input (V)
+    # 5. split (and PRAY)
 
-    #popq %rsi
-    #popq %rdi
-    # now rax stores the numeric result, need to conver to string
-    movq %rax, %rdi
-    movq %rsi, %r15
-    movq $5, %rdi
-    call *%r15 # invoke result_as_string with rdi as input number
-
-    movq %rax, %rdx # rax now stores the number of bytes to print (received from result_as_string)
-    mov $what_to_print, %rsi # address of the global variable containing the result string
-    movb (%rsi), %r8b
-    movb 1(%rsi), %r9b
-    movb 2(%rsi), %r10b
-    movq $1, %rax # using write syscall
-    movq $1, %rdi # using stdout as output device
-    #movq $msg, %rsi
-    #movq (msg_len), %rdx
-
+read_from_input:
+    # right now rsp points to the last saved value onto the stack, we will begin saving new values below, so we decrement r12
+    # r12 will store the base address where the input string is stored
+    movq %rsp, %r12
+    sub $8, %r12
+    # counter for string length
+    xor %r13, %r13
+read_another_char:
+    movq $0, %rax
+    movq $0, %rdi
+    movq $CHAR_FROM_INPUT, %rsi
+    movq $1, %rdx
     syscall
-    leave
-    ret
-    #?
 
-# maximum size of a numeric size is 20 bytes (including the minus character)
-# size of operand for calculation is 1 byte
-# total stack for specific expression block is 41 -> 1+1
-
-
-# input_loop_func(long long *(string_convert)), string convert func is saved in rdi register
-input_loop_func:
-    # input_loop_func prologue
-    pushq %rbp
-    movq %rsp, %rbp
-
-    # the frame stack looks like this
-    # left side (20 bytes) <- pointed by r8
-    # operand (1 byte) <- pointed by r9
-    # right side (20 bytes) <- pointed by r10
-    # left not empty (1 byte) <- pointed by r11
-    # left_pos <- r12
-    # right_pos <- r13
-    # is_left_number <- r14
-    # is_right_number <- r15
-    # is_left_empty <- rcx
-
-    # assign space for left side
-    subq $20, %rsp
-    # r8 saves the start of the left side
-    movq %rsp, %r8
-    # saving the stack pos for left side
-    movq %r8, %r12
-    subq $1, %rsp
-    # r9 saves the byte containing the operand
-    movq %rsp, %r9
-    movb $35, (%r9) # operand = '#'
-    subq $20, %rsp
-    # r10 saves the start of the right side
-    movq %rsp, %r10
-    # saving the stack pos for right side
-    movq %r10, %r13
-    subq $1, %rsp
-    movq %rsp, %r11
-    # r11 is 0 to note that the left side is still empty
-    movb $0, (%r11)
-    # this is the initialization of the recursion so left and right are not numbers yet
-    movq $0, %r14
-    movq $0, %r15
-    movq $0, %rcx
-
-begin_read_char:
-    pushq %rdi
-    movq $0, %rax # syscall type is read
-    movq $0, %rdi # input is stdin
-    movq $CHAR_FROM_INPUT, %rsi # output will be written to $CHAR_FROM_INPUT
-    movq $1, %rdx # read only 1 character
-    pushq %r11
-    pushq %rcx
-    syscall
-    popq %rcx
-    popq %r11
-    popq %rdi
-
-    # %rbx stores the character we recevied from STDIN
+    movb (NULL_TERM), %al
     movb (CHAR_FROM_INPUT), %bl
-
-    # need to check if this is the line feed (newline marker), if it is, that means the input has reached it's end
-    cmp $10, %rbx
-    je restore_result_and_return
-
-    cmp $40, %rbx
-    jne check_is_closing_para
-    # input is (
-    # need to check whether we already have a left side or no (by checking if operand is set to # or not)
-    cmp $35, (%r9)
-    jne operator_is_defined
-    # operand is not yet set, meaning this is the left part of an expression (for example: ( '1...'+111)
-    # need to call another recursion to get the real left side number
-    # backing up registers storing addresses for current frame
-    pushq %r8
-    pushq %r9
-    pushq %r10
-    pushq %r11
-    pushq %r12
-    pushq %r13
-    pushq %r14
-    pushq %r15
-    pushq %rcx
-    pushq %rdi
-    call input_loop_func
-    # restoring registers for current frame
-    popq %rdi
-    popq %rcx
-    popq %r15
-    popq %r14
-    popq %r13
-    popq %r12
-    popq %r11
-    popq %r10
-    popq %r9
-    popq %r8
-    # now rax stores the result of the left side
-    # saving the result of the left side onto the stack
-    movq %rax, (%r8)
-    # left is now a number and not a string
-    movq $1, %r14
-    jmp begin_read_char
-operator_is_defined:
-    # operand id set, meaning this is the right part of an expression (for example: (1+'1...')
-    # need to call another recursion to get the real right side number
-    # backing up registers storing addresses for current frame
-    pushq %r8
-    pushq %r9
-    pushq %r10
-    pushq %r11
-    pushq %r12
-    pushq %r13
-    pushq %r14
-    pushq %r15
-    pushq %rcx
-    pushq %rdi
-    call input_loop_func
-    # restoring registers for current frame
-    popq %rdi
-    popq %rcx
-    popq %r15
-    popq %r14
-    popq %r13
-    popq %r12
-    popq %r11
-    popq %r10
-    popq %r9
-    popq %r8
-    # now rax stores the result of the left side
-    # saving the result of the right side onto the stack
-    movq %rax, (%r9)
-    # right is now a number and not a string
-    movq $1, %r15
-    jmp begin_read_char
-check_is_closing_para:
-    #cmp $41, (%r9)
-    cmp $41, %rbx
-    jne check_is_operator
-    # this is a closing bracket, meaning we reached the ending of an arithmetic expression
-    pushq %r8
-    pushq %r9
-    pushq %r10
-    pushq %r11
-    pushq %r12
-    pushq %r13
-    pushq %r14
-    pushq %r15
-    pushq %rcx
-    # saving the address of string_convert func
-    pushq %rdi
-    # pointer to string_convert function in rdi
-    # address of left side in rsi
-    movq %r8, %rsi
-    # is left side a number in rdx
-    movq %r14, %rdx
-    # address of right side in rcx
-    movq %r10, %rcx
-    # is right side a number in r8
-    movq %r15, %r8
-    # operator character in r9
-    xor %r10, %r10
-    movb (%r9), %r10b
-    movq %r10, %r9
-    call calculate_result
-    # now rax stores the result of the entire calculation of this branch
-    popq %rdi
-    popq %rcx
-    popq %r15
-    popq %r14
-    popq %r13
-    popq %r12
-    popq %r11
-    popq %r10
-    popq %r9
-    popq %r8
-    jmp rec_loop_end
-check_is_operator:
-    # need to check if left side is set, if not, then the character is part of left side and not operator (even if it is '-')
-    cmp $0, %rcx
-    # left side is not set, so we add to it now
-    je set_left_no_operator
-    # need to check if the current character is a airthmetic operator (+,-,/,*)
-    # saving the address of string_convert func
-    # chcking if operator is set
-    xor %rax, %rax
-    movb (%r9), %al
-    cmp $35, %rax
-    #cmp $35, (%r9)
-    jne add_to_right_string
-    # the operator not set
-    # checking if the current character is an operator, if not, we will add the characters to the left side (because we have no operator, and the current is not an operator)
-    pushq %rdi
-    movq %rbx, %rdi
-    call determine_operator
-    popq %rdi
-    # rax now stores 4 if the current character is not an operator
-    cmp $4, %rax
-    je set_left_no_operator
-    # the current character is an operator
-    movb %bl, (%r9)
-    jmp begin_read_char
-set_left_no_operator:
-    # the left side is not set, so we are setting it now
-    movb %bl, (%r12)
-    inc %r12
-    # setting null terminator, in case this is the end of the string
-    movb $0, (%r12)
-    # marking that the left side has values
-    movb $1, (%r11)
-    movq $1, %rcx
-    jmp begin_read_char
-
-add_to_right_string:
-    # we already have an operator set, so we can only add to the right string
-    # adding to the right side since we already have an operator set
-    movb %bl, (%r13)
+    cmp %rax, %rbx
+    ### if these are equal, that means we finished taking the string as input, need to add to the stack, but not increment counter
+    je finish_string_input
+    # pushing the character we recieved as input onto the stack
+    push %rbx
+    # manual stack writing
+    # sub $8, %rsp
+    # movq %rbx, (%rsp)
+    # retrieve value (don't want to do this here)
+    # pop %r10
     inc %r13
-    # setting null terminator, in case this is the end of the string
-    movb $0, (%r13)
-    jmp begin_read_char
+    jmp read_another_char
 
-restore_result_and_return:
-    # getting value of calculation from (%r8) and placing in rax
-    mov (%r8), %rax
+finish_string_input:
+    # push $CHAR_FROM_INPUT
+    # prepare for split
+    # push $0
+    # get the current value from the stack example:
+    # movq (%r12), %r10
+    movq %r12, %rdi # saving the address of char * expr in rdi
+    movq $0, %rsi # saving start in rsi
+    #movq $1, %rsi
+    movq %r13, %rdx # saving the length of the string in rdx
+    #movq $2, %rdx
+#    call split
+    call convert_leaf
+#    ret
+  movq $60, %rax
+  movq $0, %rdi
+  syscall
 
-rec_loop_end:
-    leave
-    ret
+# long long split(char *expr, int start, int end);
 
 
-calculate_result:
-    # will receive:
-    # pointer to string_convert function in rdi
-    # address of left side in rsi
-    # is left side a number in rdx
-    # address of right side in rcx
-    # is right side a number in r8
-    # operator character in r9
-    # caclulcate_result prologue
+# long long convert_leaf(char* expr, int start, int end)
+convert_leaf:
+    # rdi stores the address of the string
+    # rsi stores the start index
+    # rdx stores the end index
+    # prologue
     pushq %rbp
     movq %rsp, %rbp
+    # r11 stores the current index in the temporary char array
+    movq %rsi, %r11
+    # rbx stores int end
+    movq %rdx, %rbx
+    sub %rsi, %rbx # should do rbx - rsi and save in rbx
+    add $2, %rbx # rbx should now store len = end - start + 2
+    movq %rbx, %r9
+    dec %r9 # r9 stores len - 1
+    # r10 saves the number of characters pushed onto the stack
+    xor %r10, %r10
+    xor %r8, %r8
+    imul $-1, %rsi
+load_expr_loop:
+    # now r8 stores the value from (rdi+rsi*1) == expr[j]
+    movq (%rdi, %rsi, 8), %r8
+    push %r8
+    inc %r10
+    dec %rsi
+    inc %r11
+    cmp %r11, %r9
+    jne load_expr_loop
+    movq $0, %r8
+    push %r8 # pushes null terminator to the end of the stack
+    inc %r10
+    movq %rbp, %rdi
+    # rdi now points to the adress on the stack, where the char* expr starts --> (%rdi) == expr[0]
+    sub $8, %rdi
 
-    # need to check operator
-    pushq %rdi
-    pushq %rsi
-    pushq %rdx
-    pushq %rcx
-    pushq %r8
-    pushq %r9
-    xor %rdi, %rdi
-    movb %r9b, %dil
-    call determine_operator
-    popq %r9
-    popq %r8
-    popq %rcx
-    popq %rdx
-    popq %rsi
-    popq %rdi
-    # storing the result in r15
-    movq %rax, %r15
-    # need to check if left is a number and if not convert
-    cmp $1, %rdx
-    jne convert_left
-
-    # need to check if right is a number and if not convert
-check_need_convert_right:
-    cmp $1, %r8
-    jne convert_right
-    jmp perform_calc
-convert_left:
-    pushq %rdi
-    pushq %rsi
-    pushq %rdx
-    pushq %rcx
-    pushq %r8
-    pushq %r9
-    movq %rdi, %r10
-    movq %rsi, %rdi
-    #movb (%rdi), %r8b
-    #movb 1(%rdi), %r9b
-    # invoke string_covert which his address is stored at r10, with parameter rsi, which is the address where left string starts
-    call *%r10
-    popq %r9
-    popq %r8
-    popq %rcx
-    popq %rdx
-    popq %rsi
-    popq %rdi
-    # saving left number as int in rsi
-    movq %rax, %rsi
-    jmp check_need_convert_right
-convert_right:
-    pushq %rdi
-    pushq %rsi
-    pushq %rdx
-    pushq %rcx
-    pushq %r8
-    pushq %r9
-    movq %rdi, %r10
-    movq %rcx, %rdi
-    # invoke string_covert which his address is stored at r10, with parameter rcx, which is the address where right string starts
-    call *%r10
-    popq %r9
-    popq %r8
-    popq %rcx
-    popq %rdx
-    popq %rsi
-    popq %rdi
-    # saving right number as int in rcx
-    movq %rax, %rcx
-    # need to perform calc based on op
-perform_calc:
-    cmp $0, %r15
-    jne check_sub
-    # the operator is +
-    add %rsi, %rcx
-    jmp store_result
-check_sub:
-    cmp $1, %r15
-    jne check_mul
-    # the operator is -
-    sub %rsi, %rcx
-    jmp store_result
-check_mul:
-    cmp $2, %r15
-    jne check_div
-    imul %rsi, %rcx
-    jmp store_result
-check_div:
-    movq %rsi, %rax
-    xor %rdx, %rdx
-    idiv %rcx
-store_result:
-    movq %rcx, %rax
-
-    # calculate_result epilogue
+    call *%r14
+    # now rax stores return value, which should be a long long number we wanted to convert from string
+    # increasing stack size to delete old values pushed to the stack
+    leaq (%rsp, %r10, 8), %rsp
     leave
     ret
+    # need to push onto the stack the number we want to convert and (probably) pass a register storing the address to the conversion function
+    # need to push null terminator to the end of the stack so that the function can stop converting
 
 # int determine_operator(char op);
 determine_operator:
@@ -383,22 +124,22 @@ determine_operator:
     # prologue
     pushq %rbp
     movq %rsp, %rbp
-    cmp $43, %rdi
+    cmp $PLUS, %rdi
     jne check_minus
     movq $0, %rax
     jmp det_op_end
 check_minus:
-    cmp $45, %rdi
+    cmp $MINUS, %rdi
     jne check_multi
     movq $1, %rax
     jmp det_op_end
 check_multi:
-    cmp $42, %rdi
+    cmp $MULTI, %rdi
     jne check_divide
     movq $2, %rax
     jmp det_op_end
 check_divide:
-    cmp $47, %rdi
+    cmp $DIVIDE, %rdi
     jne not_operator
     movq $3, %rax
     jmp det_op_end
@@ -418,15 +159,12 @@ det_op_end:
 #OPEN_PAR: .ascii "("
 #CLOSE_PAR: .ascii ")"
 #NULL_TERM: .ascii "\0"
-what_to_print: .fill 100, 1, 0
 PLUS: .byte 43
 MINUS: .byte 45
 MULTI: .byte 42
 DIVIDE: .byte 47
 OPEN_PAR: .byte 40
 CLOSE_PAR: .byte 41
+# todo: change this to actual null terminator
 NULL_TERM: .byte 10
 CHAR_FROM_INPUT: .byte 0
-msg: .ascii "test"
-msg_len: .quad msg_len - msg
-
