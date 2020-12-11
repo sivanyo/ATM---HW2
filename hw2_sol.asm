@@ -421,14 +421,6 @@ det_op_end:
 
 
 .section .data
-#PLUS: .ascii "+"
-#MINUS: .ascii "-"
-#MULTI: .ascii "*"
-#DIVIDE: .ascii "/"
-#OPEN_PAR: .ascii "("
-#CLOSE_PAR: .ascii ")"
-#NULL_TERM: .ascii "\0"
-what_to_print: .fill 100, 1, 0
 PLUS: .byte 43
 MINUS: .byte 45
 MULTI: .byte 42
