@@ -252,7 +252,7 @@ add_to_right_string:
     movb $0, (%r13)
     jmp begin_read_char
 
-restore_result_and_end:
+restore_result_and_return:
     # getting value of calculation from (%r8) and placing in rax
     mov (%r8), %rax
 
