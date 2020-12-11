@@ -23,6 +23,8 @@ calc_expr:
     movq %rax, %rdx # rax now stores the number of bytes to print (received from result_as_string)
     mov $what_to_print, %rsi # address of the global variable containing the result string
     movb (%rsi), %r8b
+    movb 1(%rsi), %r9b
+    movb 2(%rsi), %r10b
     movq $1, %rax # using write syscall
     movq $1, %rdi # using stdout as output device
     #movq $msg, %rsi
@@ -425,3 +427,4 @@ NULL_TERM: .byte 10
 CHAR_FROM_INPUT: .byte 0
 msg: .ascii "test"
 msg_len: .quad msg_len - msg
+
