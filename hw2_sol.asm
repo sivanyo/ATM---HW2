@@ -365,6 +365,7 @@ check_div:
     jne no_op_provided
     xor %rdx, %rdx
     idiv %rcx
+    jmp end
 store_result:
     movq %rcx, %rax
     jmp end
