@@ -24,7 +24,7 @@ calc_expr:
     movb $49, (%rsp)
     movb $0, 1(%rsp)
     movq %rsp, %rdi
-    call *r14 # call string_convert with %rsp as parameter
+    call *%r14 # call string_convert with %rsp as parameter
 
     movq %rax, %rdi
     call *%r15 # invoke result_as_string with rdi as input number
