@@ -365,6 +365,8 @@ check_mul:
     jmp store_result
 check_div:
     movq %rsi, %rax
+    cmp $3, %r15
+    jne store_result
     xor %rdx, %rdx
     idiv %rcx
 store_result:
