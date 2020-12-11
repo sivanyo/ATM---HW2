@@ -9,28 +9,17 @@ calc_expr:
     # rsi stores address of result_as_string
     pushq %rbp
     movq %rsp, %rbp
-    pushq %rbx
-	#push %rdi
-	#push %rsi # rsp points to the value of rsi now
+	push %rdi
+	push %rsi # rsp points to the value of rsi now
 
-	#call input_loop_func
+	call input_loop_func
 
-    #popq %rsi
-    #popq %rdi
+    popq %rsi
+    popq %rdi
     # now rax stores the numeric result, need to conver to string
-    #movq %rax, %rdi
-    movq %rdi, %r14
-    movq %rsi, %r15
-    subq $4, %rsp
-    movq %rsp, %r13
-    movb $49, (%r13)
-    movb $50, 1(%r13)
-    movb $51, 2(%r13)
-    movb $0, 3(%r13)
-    movq %r13, %rdi
-    call *%r14 # call string_convert with %rsp as parameter
-
     movq %rax, %rdi
+
+    #movq %rax, %rdi
     call *%r15 # invoke result_as_string with rdi as input number
 
     movq %rax, %rdx # rax now stores the number of bytes to print (received from result_as_string)
@@ -43,7 +32,6 @@ calc_expr:
     #movq $msg, %rsi
     #movq (msg_len), %rdx
     syscall
-    movq -8(%rbp), %rbx  # epilogue
     leave
     ret
 
