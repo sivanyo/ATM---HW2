@@ -366,12 +366,12 @@ check_mul:
 check_div:
     movq %rsi, %rax
     cmp $3, %r15
-    jne store_result
+    jne end
     xor %rdx, %rdx
     idiv %rcx
 store_result:
     movq %rcx, %rax
-
+end:
     # calculate_result epilogue
     leave
     ret
