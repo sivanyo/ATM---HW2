@@ -351,7 +351,9 @@ check_sub:
     cmp $1, %r15
     jne check_mul
     # the operator is -
-    sub %rsi, %rcx
+    #sub %rsi, %rcx
+    sub %rcx, %rsi
+    movq %rsi, %rcx
     jmp store_result
 check_mul:
     cmp $2, %r15
