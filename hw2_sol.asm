@@ -20,7 +20,7 @@ calc_expr:
     #movq %rax, %rdi
     movq %rsi, %r15
     movq %rdi, %r14
-    subq 2, %rsp
+    subq $2, %rsp
     movb $49, (%rsp)
     movb $0, 1(%rsp)
     movq %rsp, %rdi
