@@ -294,11 +294,15 @@ calculate_result:
     # need to check if left is a number and if not convert
     cmp $1, %rdx
     jne convert_left
+    # left side is a number, so we take if from the address and place in the register
+    movq (%rsi), %rsi
 
     # need to check if right is a number and if not convert
 check_need_convert_right:
     cmp $1, %r8
     jne convert_right
+    # right side is a number, so we take it from the address and place in the register
+    movq (%rcx), %rcx
     jmp perform_calc
 convert_left:
     pushq %rdi
