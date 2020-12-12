@@ -36,7 +36,7 @@ my_de_handler:
 old_handler:
     # the old rax is 0, which means we tried to perform 0/0, letting cpu handle normally
     leave
-    jmp* old_de_handler
+    jmp *old_de_handler
 
 return_from_what:
     leave
