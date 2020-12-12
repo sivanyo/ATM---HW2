@@ -160,7 +160,7 @@ operator_is_defined:
     popq %r8
     # now rax stores the result of the left side
     # saving the result of the right side onto the stack
-    movq %rax, (%r9)
+    movq %rax, (%r10)
     # right is now a number and not a string
     movq $1, %r15
     jmp begin_read_char
