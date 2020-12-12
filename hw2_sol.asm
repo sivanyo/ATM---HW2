@@ -370,9 +370,11 @@ check_mul:
 check_div:
     cmp $3, %r15
     jne no_op_provided
-    xor %rdx, %rdx
+    #xor %rdx, %rdx
+    # we need to sign extend rax into rdx
     # moving value of left side to rax
     movq %rsi, %rax
+    cqo
     # doing rdx:rax / rcx and saving result in rax
     idiv %rcx
     jmp end
