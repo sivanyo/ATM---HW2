@@ -132,6 +132,8 @@ begin_read_char:
     movq %rax, (%r8)
     # left is now a number and not a string
     movq $1, %r14
+    # left is now not empty
+    movq $1, %rcx
     jmp begin_read_char
 operator_is_defined:
     # operand id set, meaning this is the right part of an expression (for example: (1+'1...')
