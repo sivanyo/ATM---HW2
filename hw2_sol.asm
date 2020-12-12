@@ -55,6 +55,7 @@ input_loop_func:
     subq $20, %rsp
     # r8 saves the start of the left side
     movq %rsp, %r8
+    movq $0, (%r8)
     # saving the stack pos for left side
     movq %r8, %r12
     subq $1, %rsp
