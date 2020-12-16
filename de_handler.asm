@@ -25,10 +25,10 @@ my_de_handler:
   # if we are here, that means a divide by zero exception has occured, we need to try and send the divided part to what_to_do
   # since the issue is with divison, the divided is in rax
   movq %rax, %rdi
-  # need to check if the divided is 0
-  cmp $0, %rdi
-  je old_handler
   call what_to_do
+  cmp $0, %rax
+  # the result of what to do is 0, so we let the old handler handle
+  je old_hanlder
   # now rax holds the val of what to do
   # set rcx to be 1, so the result of the division will be rax
   movq $1, %rcx
