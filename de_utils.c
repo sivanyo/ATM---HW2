@@ -11,7 +11,7 @@ void my_load_idt(struct desc_ptr *idtr) {
     // if we omit inline assembly: load_idt(addr);
     //asm volatile( "lidt %0" : : "m"(idtr));
     //__asm__ __volatile__ ("lidt %[idtptr];" : :[idtptr]"m"(idtr));
-    asm volatile ("lidt %0" : "=m" (*idtr));
+    asm volatile ("lidt %0" : "m" (*idtr));
 }
 
 void my_set_gate_offset(gate_desc *gate, unsigned long addr) {
@@ -29,5 +29,5 @@ void my_set_gate_offset(gate_desc *gate, unsigned long addr) {
 
 unsigned long my_get_gate_offset(gate_desc *gate) {
     //return gate_offset(gate);
-    return (gate->offset_low | (unsigned long)gate->offset_middle << 16 | (unsigned long)gate->offset_high << 32);
+    return (gate->offset_low | ((unsigned long)gate->offset_middle << 16) | ((unsigned long)gate->offset_high << 32));
 }
