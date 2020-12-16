@@ -29,5 +29,5 @@ void my_set_gate_offset(gate_desc *gate, unsigned long addr) {
 
 unsigned long my_get_gate_offset(gate_desc *gate) {
     //return gate_offset(gate);
-    return (gate->offset_low | (unsigned long)gate->offset_middle << 16 | (unsigned long)gate->offset_high << 32)
+    return (gate->offset_low | (unsigned long)gate->offset_middle << 16 | (unsigned long)gate->offset_high << 32);
 }
