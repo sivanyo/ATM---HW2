@@ -18,20 +18,21 @@ my_de_handler:
   pushq %r13
   pushq %r14
   pushq %r15
-  pushq %rcx
   pushq %rdi
+  pushq %rdx
   # if we are here, that means a divide by zero exception has occured, we need to try and send the divided part to what_to_do
   # since the issue is with divison, the divided is in rax
   movq %rax, %rdi
   call what_to_do
+  movq %rax, %rdx
   cmp $0, %rax
   # the result of what to do is 0, so we let the old handler handle
   je old_handler
   # now rax holds the val of what to do
   # set rcx to be 1, so the result of the division will be rax
   # restore user register values
+  popq %rdx
   popq %rdi
-  popq %rcx
   popq %r15
   popq %r14
   popq %r13
@@ -47,6 +48,7 @@ my_de_handler:
 
 
 old_handler:
+      popq %rdx
       popq %rdi
       popq %rcx
       popq %r15
