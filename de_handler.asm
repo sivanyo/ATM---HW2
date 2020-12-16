@@ -10,10 +10,6 @@ my_de_handler:
   push %rbp
   movq %rsp, %rbp
   # backing up all the registers that have been in use at calc.c
-  pushq %rdi
-  pushq %rsi
-  pushq %rbx
-  pushq %rdx
   pushq %r8
   pushq %r9
   pushq %r10
@@ -22,6 +18,8 @@ my_de_handler:
   pushq %r13
   pushq %r14
   pushq %r15
+  pushq %rcx
+  pushq %rdi
   # if we are here, that means a divide by zero exception has occured, we need to try and send the divided part to what_to_do
   # since the issue is with divison, the divided is in rax
   movq %rax, %rdi
@@ -31,8 +29,9 @@ my_de_handler:
   je old_handler
   # now rax holds the val of what to do
   # set rcx to be 1, so the result of the division will be rax
-  movq $1, %rcx
   # restore user register values
+  popq %rdi
+  popq %rcx
   popq %r15
   popq %r14
   popq %r13
@@ -41,17 +40,15 @@ my_de_handler:
   popq %r10
   popq %r9
   popq %r8
-  popq %rdx
-  popq %rbx
-  popq %rsi
-  popq %rdi
+  movq $1, %rcx
   cqo
   leave
   iretq
 
 
 old_handler:
-# the old rax is 0, which means we tried to perform 0/0, letting cpu handle normally
+      popq %rdi
+      popq %rcx
       popq %r15
       popq %r14
       popq %r13
@@ -60,9 +57,5 @@ old_handler:
       popq %r10
       popq %r9
       popq %r8
-      popq %rdx
-      popq %rbx
-      popq %rsi
-      popq %rdi
       jmp * old_de_handler
 
