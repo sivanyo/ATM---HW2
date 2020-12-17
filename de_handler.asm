@@ -18,6 +18,8 @@ my_de_handler:
   pushq %r13
   pushq %r14
   pushq %r15
+  # this was added
+  pushq %rcx
   pushq %rdi
   pushq %rdx
   # if we are here, that means a divide by zero exception has occured, we need to try and send the divided part to what_to_do
@@ -33,6 +35,8 @@ my_de_handler:
   # restore user register values
   popq %rdx
   popq %rdi
+  # this was added
+  popq %rcx
   popq %r15
   popq %r14
   popq %r13
@@ -50,6 +54,7 @@ my_de_handler:
 old_handler:
       popq %rdx
       popq %rdi
+      # TEST, removing this line causes panic
       popq %rcx
       popq %r15
       popq %r14
@@ -59,5 +64,6 @@ old_handler:
       popq %r10
       popq %r9
       popq %r8
+      leave
       jmp * old_de_handler
 
