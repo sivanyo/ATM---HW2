@@ -50,7 +50,6 @@ my_de_handler:
 old_handler:
       popq %rdx
       popq %rdi
-      popq %rcx
       popq %r15
       popq %r14
       popq %r13
