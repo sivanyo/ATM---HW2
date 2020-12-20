@@ -52,7 +52,7 @@ input_loop_func:
     # is_left_empty <- rcx
 
     # assign space for left side
-    subq $20, %rsp
+    subq $21, %rsp
     # r8 saves the start of the left side
     movq %rsp, %r8
     movq $0, (%r8)
@@ -62,7 +62,7 @@ input_loop_func:
     # r9 saves the byte containing the operand
     movq %rsp, %r9
     movb $35, (%r9) # operand = '#'
-    subq $20, %rsp
+    subq $21, %rsp
     # r10 saves the start of the right side
     movq %rsp, %r10
     # saving the stack pos for right side
