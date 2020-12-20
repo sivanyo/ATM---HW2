@@ -260,6 +260,7 @@ restore_result_and_return:
 
 rec_loop_end:
     leave
+    movq (%rbp), %r9
     ret
 
 
